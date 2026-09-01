@@ -41,6 +41,17 @@ jobs:
           base64 --decode flight_reader/make_reader.py.gz.b64 | gzip --decompress > flight_reader/make_reader.py
           python -m py_compile flight_reader/make_reader.py
           sed -i 's#https://arxiv.org/pdf/2603.00729#https://raw.githubusercontent.com/QwenLM/Qwen3-Coder/main/qwen3_coder_next_tech_report.pdf#g' flight_reader/make_reader.py
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('flight_reader/make_reader.py')
+          s = p.read_text(encoding='utf-8')
+          old = 'note["body"], 8.55, min_fontsize=7.0, color=INK, lineheight=1.33'
+          new = 'note["body"], 7.8, min_fontsize=5.4, color=INK, lineheight=1.16'
+          if old not in s:
+              raise SystemExit('sidebar patch target not found')
+          p.write_text(s.replace(old, new), encoding='utf-8')
+          PY
+          python -m py_compile flight_reader/make_reader.py
 
       - name: Build annotated PDFs
         run: python flight_reader/make_reader.py
