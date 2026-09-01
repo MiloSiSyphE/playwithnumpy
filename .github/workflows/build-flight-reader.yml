@@ -30,9 +30,17 @@ jobs:
 
       - name: Reconstruct builder
         run: |
-          cat flight_reader/reader_chunk_*.b64 > flight_reader/make_reader.py.gz.b64
-          base64 -d flight_reader/make_reader.py.gz.b64 | gzip -d > flight_reader/make_reader.py
+          cat \
+            flight_reader/reader_chunk_00.b64 \
+            flight_reader/reader_chunk_01a.b64 \
+            flight_reader/reader_chunk_01b.b64 \
+            flight_reader/reader_chunk_02.b64 \
+            flight_reader/reader_chunk_03.b64 \
+            > flight_reader/make_reader.py.gz.b64
+          wc -c flight_reader/make_reader.py.gz.b64
+          base64 --decode flight_reader/make_reader.py.gz.b64 | gzip --decompress > flight_reader/make_reader.py
           python -m py_compile flight_reader/make_reader.py
+          sed -i 's#https://arxiv.org/pdf/2603.00729#https://raw.githubusercontent.com/QwenLM/Qwen3-Coder/main/qwen3_coder_next_tech_report.pdf#g' flight_reader/make_reader.py
 
       - name: Build annotated PDFs
         run: python flight_reader/make_reader.py
